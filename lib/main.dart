@@ -21,8 +21,8 @@ class MyApp extends StatelessWidget {
       ),
       home: const Homepage(),
       routes: {
-        AudioPlayerPage.path: (_) => AudioPlayerPage(),
-        GoogleMapsPage.path: (_) => const GoogleMapsPage(),
+        AudioPlayerPage.path: (_) => const AudioPlayerPage(),
+        GoogleMapsPage.path: (_) => GoogleMapsPage(),
         ImagePickerPage.path: (_) => const ImagePickerPage(),
         VideoPlayerPage.path: (_) => const VideoPlayerPage(),
         WebViewPage.path: (_) => const WebViewPage(),

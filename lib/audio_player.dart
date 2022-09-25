@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -13,23 +11,23 @@ class AudioPlayerPage extends StatefulWidget {
 
 class _AudioPlayerPageState extends State<AudioPlayerPage> {
   final player = AudioPlayer();
-
+  int value = 0;
   @override
   void initState() {
     super.initState();
     loadAudio();
 
-    player.positionStream.listen((event) {});
+    player.positionStream.listen((event) {
+      value = event.inSeconds;
+      setState(() {});
+    });
   }
 
+  Duration? duration = Duration.zero;
   loadAudio() async {
-    await player
-        .setUrl(
-      "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
-    )
-        .then((value) {
-      log(value!.inSeconds.toString());
-    });
+    duration = await player.setAsset(
+      "assets/Kalimba.mp3",
+    );
   }
 
   @override
@@ -38,39 +36,55 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
       appBar: AppBar(
         title: const Text("Audio Player"),
       ),
-      body: Container(
-        child: Column(
-          children: [
-            StreamBuilder(
-              stream: player.durationStream,
-              builder: (context, snapshot) {
-                return snapshot.data == null
-                    ? const Text("Null")
-                    : Text(snapshot.data!.inSeconds.toString());
-              },
-            ),
-            ElevatedButton(
-              onPressed: () {
-                player.play();
-              },
-              child: const Text("Play"),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                await player.pause();
-              },
-              child: const Text("Pause"),
-            ),
-            const LinearProgressIndicator(
-              value: 0.4,
-            ),
-            Slider(
-              value: 45,
-              onChanged: (value) {},
-              max: 100,
-            ),
-          ],
-        ),
+      body: Column(
+        children: [
+          ElevatedButton(
+            onPressed: () {
+              player.play();
+            },
+            child: const Text("Play"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await player.pause();
+            },
+            child: const Text("Pause"),
+          ),
+
+          StreamBuilder<Duration>(
+            stream: player.positionStream,
+            builder: (context, val) {
+              return val.data == null
+                  ? const Text("Null")
+                  : Text(val.data!.inSeconds.toString());
+            },
+          ),
+          duration == null
+              ? Container()
+              : Slider(
+                  value: value.toDouble(),
+                  onChanged: (val) {
+                    player.seek(Duration(seconds: val.toInt()));
+                  },
+                  max: duration!.inSeconds.toDouble(),
+                ),
+
+          // Column(
+          //   children: [
+          //     Text(value.toString()),
+          //     LinearProgressIndicator(
+          //       value: 1 - (value / duration!.inSeconds),
+          //     ),
+          //     Slider(
+          //       value: value.toDouble(),
+          //       onChanged: (value) {
+          //         player.seek(Duration(seconds: value.toInt()));
+          //       },
+          //       max: duration!.inSeconds.toDouble(),
+          //     ),
+          //   ],
+          // ),
+        ],
       ),
     );
   }
